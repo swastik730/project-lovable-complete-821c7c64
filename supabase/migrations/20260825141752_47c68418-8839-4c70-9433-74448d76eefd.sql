@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.reset_password_with_answer(text, text, text) TO anon, authenticated;
