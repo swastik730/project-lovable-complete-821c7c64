@@ -1,0 +1,30 @@
+{
+  "id": "/",
+  "name": "BoardBuddy — Class 10 Board Exam Partner",
+  "short_name": "BoardBuddy",
+  "description": "Learn, practice and track your Class 10 board exam preparation — works offline too.",
+  "lang": "en",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#1769E0",
+  "categories": ["education", "productivity"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Practice", "url": "/practice" },
+    { "name": "Mock tests", "url": "/tests" },
+    { "name": "Progress", "url": "/progress" }
+  ]
+}

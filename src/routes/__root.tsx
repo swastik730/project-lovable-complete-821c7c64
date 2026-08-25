@@ -10,7 +10,10 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+
+import { Toaster } from "@/components/ui/sonner";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { captureError, installErrorMonitoring } from "@/lib/monitoring";
 
 function NotFoundComponent() {
   return (
@@ -39,6 +42,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    captureError(error, "boundary");
   }, [error]);
 
   return (
@@ -77,23 +81,39 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "BoardBuddy — Your Smart Board Exam Partner" },
+      {
+        name: "description",
+        content: "BoardBuddy is a Class 10 board exam preparation app: learn, practice and improve every day.",
+      },
+      { name: "theme-color", content: "#1769E0" },
+      { property: "og:site_name", content: "BoardBuddy" },
+      { property: "og:title", content: "BoardBuddy — Your Smart Board Exam Partner" },
+      {
+        property: "og:description",
+        content: "Class 10 board preparation: chapter-wise learning, quizzes and real progress tracking.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap",
+      },
+      { rel: "icon", href: "/favicon.png", type: "image/png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
     ],
   }),
+
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
@@ -117,10 +137,21 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  useEffect(() => {
+    installErrorMonitoring();
+    if ("serviceWorker" in navigator) {
+      const register = () => navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+      if (document.readyState === "complete") register();
+      else window.addEventListener("load", register, { once: true });
+    }
+  }, []);
+
+
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <Toaster />
     </QueryClientProvider>
   );
 }
