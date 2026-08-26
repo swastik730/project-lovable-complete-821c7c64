@@ -92,7 +92,9 @@ function TutorPage() {
     setBusy(true);
     try {
       const { reply } = await send({ data: { messages: next } });
-      setMessages([...next, { role: "assistant", content: reply }]);
+      const withReply: Msg[] = [...next, { role: "assistant", content: reply }];
+      setMessages(withReply);
+      setTypingIndex(withReply.length - 1);
       requestAnimationFrame(() => endRef.current?.scrollIntoView({ behavior: "smooth" }));
     } catch (e) {
       setError(e instanceof Error ? e.message : "The tutor could not answer right now.");
