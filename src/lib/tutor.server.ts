@@ -38,8 +38,8 @@ export function buildStudentBrief(ctx: StudentContext) {
   if (ctx.plan) lines.push(`Plan: ${ctx.plan}`);
   if (!lines.length) return "";
   return (
-    "Here is the student's live progress. Use it to personalise your answer, greet them by first name once, " +
-    "and gently point at their weak chapters when relevant:\n" +
+    "Here is the student's live progress. Use it to personalise your answers: greet them by first name, " +
+    "reference their streak/XP when encouraging them, and gently point at their weak chapters when relevant:\n" +
     lines.join("\n")
   );
 }
