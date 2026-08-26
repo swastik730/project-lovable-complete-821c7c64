@@ -75,9 +75,12 @@ function TutorPage() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [typingIndex, setTypingIndex] = useState<number | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
   const allowed = !subscriptionsEnabled || isMax;
+  const meta = (user?.user_metadata ?? {}) as { name?: string };
+  const firstName = (meta.name ?? user?.email?.split("@")[0] ?? "").trim().split(/\s+/)[0] || "dost";
 
   async function ask(text: string) {
     const question = text.trim();
