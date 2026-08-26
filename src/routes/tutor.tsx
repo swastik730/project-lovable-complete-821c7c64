@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Send, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -33,6 +33,40 @@ const STARTERS = [
   "Solve: find roots of x² − 5x + 6 = 0",
 ];
 
+/** ChatGPT-style typing effect: reveals the reply word by word. */
+function Typewriter({ text, onDone }: { text: string; onDone?: () => void }) {
+  const [shown, setShown] = useState("");
+  const doneRef = useRef(false);
+
+  useEffect(() => {
+    const words = text.split(/(\s+)/);
+    let i = 0;
+    setShown("");
+    const id = window.setInterval(() => {
+      i += 2;
+      if (i >= words.length) {
+        window.clearInterval(id);
+        setShown(text);
+        if (!doneRef.current) {
+          doneRef.current = true;
+          onDone?.();
+        }
+        return;
+      }
+      setShown(words.slice(0, i).join(""));
+    }, 24);
+    return () => window.clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text]);
+
+  return (
+    <span>
+      {shown}
+      {shown.length < text.length && <span className="animate-pulse text-primary">▍</span>}
+    </span>
+  );
+}
+
 function TutorPage() {
   const { user } = useSession();
   const { subscriptionsEnabled, isMax, ready } = usePremium();
@@ -41,9 +75,12 @@ function TutorPage() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [typingIndex, setTypingIndex] = useState<number | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
   const allowed = !subscriptionsEnabled || isMax;
+  const meta = (user?.user_metadata ?? {}) as { name?: string };
+  const firstName = (meta.name ?? user?.email?.split("@")[0] ?? "").trim().split(/\s+/)[0] || "dost";
 
   async function ask(text: string) {
     const question = text.trim();
@@ -55,7 +92,9 @@ function TutorPage() {
     setBusy(true);
     try {
       const { reply } = await send({ data: { messages: next } });
-      setMessages([...next, { role: "assistant", content: reply }]);
+      const withReply: Msg[] = [...next, { role: "assistant", content: reply }];
+      setMessages(withReply);
+      setTypingIndex(withReply.length - 1);
       requestAnimationFrame(() => endRef.current?.scrollIntoView({ behavior: "smooth" }));
     } catch (e) {
       setError(e instanceof Error ? e.message : "The tutor could not answer right now.");
@@ -105,9 +144,9 @@ function TutorPage() {
       <div className="space-y-3 pb-4">
         {messages.length === 0 && (
           <div className="surface p-4">
-            <p className="text-sm font-bold">Ask me any Class 10 doubt</p>
+            <p className="text-sm font-bold">Namaste {firstName}! 👋 Kya doubt hai aaj?</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Maths, Science, SST or English — I explain step by step.
+              Maths, Science, SST or English — main step by step samjhata hoon, jaise ek dost.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               {STARTERS.map((s) => (
@@ -133,7 +172,17 @@ function TutorPage() {
                   : "max-w-[92%] whitespace-pre-wrap text-sm leading-relaxed text-foreground"
               }
             >
-              {m.content}
+              {m.role === "assistant" && i === typingIndex ? (
+                <Typewriter
+                  text={m.content}
+                  onDone={() => {
+                    setTypingIndex(null);
+                    endRef.current?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                />
+              ) : (
+                m.content
+              )}
             </div>
           </div>
         ))}
