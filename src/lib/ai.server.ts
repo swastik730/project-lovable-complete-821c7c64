@@ -10,7 +10,7 @@ export const AI_PROVIDERS: Record<
   lovable: {
     label: "Built-in AI (Lovable)",
     baseUrl: "https://ai.gateway.lovable.dev/v1",
-    defaultModel: "google/gemini-3.5-flash",
+    defaultModel: "openai/gpt-5.6-sol",
     keyHint: "No key needed — uses the built-in AI included with the app.",
   },
   openai: {
@@ -93,7 +93,7 @@ async function chatProbe(baseUrl: string, apiKey: string, model: string) {
   const res = await fetch(`${baseUrl}/chat/completions`, {
     method: "POST",
     headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
-    body: JSON.stringify({ model, max_tokens: 8, messages: [{ role: "user", content: "ping" }] }),
+    body: JSON.stringify({ model, messages: [{ role: "user", content: "Reply with the word: ok" }] }),
   });
   if (res.ok) return { ok: true as const, message: `Key works with ${model}.` };
   const text = (await res.text()).slice(0, 200);
