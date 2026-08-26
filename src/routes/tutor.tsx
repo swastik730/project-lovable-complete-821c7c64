@@ -144,9 +144,9 @@ function TutorPage() {
       <div className="space-y-3 pb-4">
         {messages.length === 0 && (
           <div className="surface p-4">
-            <p className="text-sm font-bold">Ask me any Class 10 doubt</p>
+            <p className="text-sm font-bold">Namaste {firstName}! 👋 Kya doubt hai aaj?</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              Maths, Science, SST or English — I explain step by step.
+              Maths, Science, SST or English — main step by step samjhata hoon, jaise ek dost.
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               {STARTERS.map((s) => (
@@ -172,7 +172,17 @@ function TutorPage() {
                   : "max-w-[92%] whitespace-pre-wrap text-sm leading-relaxed text-foreground"
               }
             >
-              {m.content}
+              {m.role === "assistant" && i === typingIndex ? (
+                <Typewriter
+                  text={m.content}
+                  onDone={() => {
+                    setTypingIndex(null);
+                    endRef.current?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                />
+              ) : (
+                m.content
+              )}
             </div>
           </div>
         ))}
