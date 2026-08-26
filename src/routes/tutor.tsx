@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Send, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
@@ -32,6 +32,40 @@ const STARTERS = [
   "How do I balance a chemical equation?",
   "Solve: find roots of x² − 5x + 6 = 0",
 ];
+
+/** ChatGPT-style typing effect: reveals the reply word by word. */
+function Typewriter({ text, onDone }: { text: string; onDone?: () => void }) {
+  const [shown, setShown] = useState("");
+  const doneRef = useRef(false);
+
+  useEffect(() => {
+    const words = text.split(/(\s+)/);
+    let i = 0;
+    setShown("");
+    const id = window.setInterval(() => {
+      i += 2;
+      if (i >= words.length) {
+        window.clearInterval(id);
+        setShown(text);
+        if (!doneRef.current) {
+          doneRef.current = true;
+          onDone?.();
+        }
+        return;
+      }
+      setShown(words.slice(0, i).join(""));
+    }, 24);
+    return () => window.clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text]);
+
+  return (
+    <span>
+      {shown}
+      {shown.length < text.length && <span className="animate-pulse text-primary">▍</span>}
+    </span>
+  );
+}
 
 function TutorPage() {
   const { user } = useSession();
